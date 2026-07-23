@@ -12,7 +12,7 @@
 
 namespace esphome::vban_publisher {
 
-class VBANPublisherComponentComponent final : public Component {
+class VBANPublisherComponent final : public Component {
  public:
   void dump_config() override;
   void setup() override;
