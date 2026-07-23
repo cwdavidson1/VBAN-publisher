@@ -1,4 +1,4 @@
-#include "sound_level.h"
+#include "vban_publisher.h"
 
 #ifdef USE_ESP32
 
@@ -9,7 +9,7 @@
 
 namespace esphome::sound_level {
 
-static const char *const TAG = "sound_level";
+static const char *const TAG = "vban_publisher";
 
 static const uint32_t MAX_FILL_DURATION_MS = 30;
 static const uint32_t RING_BUFFER_DURATION_MS = 120;
@@ -17,7 +17,7 @@ static const uint32_t RING_BUFFER_DURATION_MS = 120;
 // Square INT16_MIN since INT16_MIN^2 > INT16_MAX^2
 static const double MAX_SAMPLE_SQUARED_DENOMINATOR = INT16_MIN * INT16_MIN;
 
-void SoundLevelComponent::dump_config() {
+void VBANPublisherComponent::dump_config() {
   ESP_LOGCONFIG(TAG,
                 "Sound Level Component:\n"
                 "  Measurement Duration: %" PRIu32 " ms",
@@ -27,7 +27,7 @@ void SoundLevelComponent::dump_config() {
   LOG_SENSOR("  ", "RMS:", this->rms_sensor_);
 }
 
-void SoundLevelComponent::setup() {
+void VBANPublisherComponent::setup() {
   this->microphone_source_->add_data_callback([this](const std::vector<uint8_t> &data) {
     std::shared_ptr<ring_buffer::RingBuffer> temp_ring_buffer = this->ring_buffer_.lock();
     if (temp_ring_buffer != nullptr) {
@@ -41,7 +41,7 @@ void SoundLevelComponent::setup() {
   }
 }
 
-void SoundLevelComponent::loop() {
+void VBANPublisherComponent::loop() {
   if ((this->peak_sensor_ == nullptr) && (this->rms_sensor_ == nullptr)) {
     // No sensors configured, nothing to do
     return;
@@ -140,7 +140,7 @@ void SoundLevelComponent::loop() {
   }
 }
 
-void SoundLevelComponent::start() {
+void VBANPublisherComponent::start() {
   if (this->microphone_source_->is_passive()) {
     ESP_LOGW(TAG, "Can't start the microphone in passive mode");
     return;
@@ -148,7 +148,7 @@ void SoundLevelComponent::start() {
   this->microphone_source_->start();
 }
 
-void SoundLevelComponent::stop() {
+void VBANPublisherComponent::stop() {
   if (this->microphone_source_->is_passive()) {
     ESP_LOGW(TAG, "Can't stop microphone in passive mode");
     return;
@@ -156,7 +156,7 @@ void SoundLevelComponent::stop() {
   this->microphone_source_->stop();
 }
 
-bool SoundLevelComponent::start_() {
+bool VBANPublisherComponent::start_() {
   if (this->audio_source_ != nullptr) {
     return true;
   }
@@ -189,7 +189,7 @@ bool SoundLevelComponent::start_() {
   return true;
 }
 
-void SoundLevelComponent::stop_() { this->audio_source_.reset(); }
+void VBANPublisherComponent::stop_() { this->audio_source_.reset(); }
 
 }  // namespace esphome::sound_level
 
