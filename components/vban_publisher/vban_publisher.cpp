@@ -105,6 +105,8 @@ void VBANPublisherComponent::loop() {
         this->microphone_source_->get_audio_stream_info().bytes_to_samples(
             this->audio_source_->available());
 
+    ESP_LOGD(TAG, "samples available: %d ", samples_available_to_process);
+
     if (samples_available_to_process < VBAN_16BIT_SAMPLES_PER_PACKET) {
         // Not enough new audio available for processing
         return;
@@ -140,7 +142,7 @@ void VBANPublisherComponent::loop() {
         memset(hdr->streamname, 0, sizeof(hdr->streamname));
         memcpy(hdr->streamname, stream_name_.c_str(), stream_name_.size());
         // update frame counter for next packet after setting in this header
-        ESP_LOGD(TAG, "VBAN Publisher available: %d ", frame_counter_);
+        ESP_LOGD(TAG, "frame counter: %d ", frame_counter_);
         hdr->frame_counter = frame_counter_++;
 
         // copy in the audio samples after the header
@@ -156,7 +158,6 @@ void VBANPublisherComponent::loop() {
         }
         raw_samples += VBAN_16BIT_SAMPLES_PER_PACKET * 4;
         count -= VBAN_16BIT_SAMPLES_PER_PACKET;
-        ESP_LOGD(TAG, "count at end of loop: %d ", count);
     }
 
     this->audio_source_->consume(VBAN_16BIT_SAMPLES_PER_PACKET * 2);
