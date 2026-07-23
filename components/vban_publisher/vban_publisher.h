@@ -53,11 +53,27 @@ class VBANPublisherComponent final : public Component {
   void set_peak_sensor(sensor::Sensor *peak_sensor) { this->peak_sensor_ = peak_sensor; }
   void set_rms_sensor(sensor::Sensor *rms_sensor) { this->rms_sensor_ = rms_sensor; }
 
-  void set_target_ip(const std::string &ip);
-  void set_target_port(uint16_t port);
-  void set_sample_rate(uint32_t rate);
-  void set_stream_name(const std::string &name);
-  void set_gain(float gain);
+  
+
+
+
+  void set_target_ip(const std::string &ip) {
+  this->target_ip_str_ = ip;
+}
+  void set_target_port(uint16_t port) {
+ this->port_ = port;
+}
+  void set_sample_rate(uint32_t rate) {
+  this->sample_rate_ = rate;
+}
+  void set_stream_name(const std::string &name) {
+  this->stream_name_ = name.substr(0, 16);
+}
+void set_gain(float gain){
+  if (gain < 0.0f) gain = 0.0f;
+  if (gain > 10.0f) gain = 10.0f;
+  this->gain_ = gain;
+}
 
   /// @brief Starts the MicrophoneSource to start measuring sound levels
   void start();
@@ -87,6 +103,16 @@ class VBANPublisherComponent final : public Component {
   uint32_t sample_count_{0};
 
   uint32_t measurement_duration_ms_;
+
+  int sock_{-1};
+  sockaddr_in dest_addr_{};
+
+  std::string target_ip_str_;
+  uint16_t port_{6980};
+  uint32_t sample_rate_{48000};
+  std::string stream_name_{"ESP32"};
+
+  float gain_{1.0f};  // digital mic gain
 };
 
 template<typename... Ts> class StartAction final : public Action<Ts...>, public Parented<VBANPublisherComponent> {
