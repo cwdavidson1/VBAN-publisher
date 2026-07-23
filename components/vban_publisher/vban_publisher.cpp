@@ -163,8 +163,8 @@ void VBANPublisherComponent::loop() {
         count -= VBAN_16BIT_SAMPLES_PER_PACKET;
     }
 
-    // this->audio_source_->consume(bytes_consumed);
-    this->audio_source_->consume(this->audio_source_->available());
+    this->audio_source_->consume(bytes_consumed);
+    // this->audio_source_->consume(this->audio_source_->available());
     bytes_consumed = 0;
 
     // const uint32_t samples_in_window =
@@ -242,6 +242,7 @@ bool VBANPublisherComponent::start_() {
 
     std::shared_ptr<ring_buffer::RingBuffer> temp_ring_buffer =
         ring_buffer::RingBuffer::create(ring_buffer_size);
+
     if (temp_ring_buffer == nullptr) {
         this->status_momentary_error("ring_buffer", 15000);
         return false;
@@ -250,9 +251,14 @@ bool VBANPublisherComponent::start_() {
     // Zero-copy source that reads directly from the ring buffer's internal
     // storage. Frame-aligned reads ensure multi-channel frames are never
     // split across the ring buffer's wrap boundary.
+
+    // this->audio_source_ = audio::RingBufferAudioSource::create(
+    //     temp_ring_buffer, stream_info.ms_to_bytes(MAX_FILL_DURATION_MS),
+    //     static_cast<uint8_t>(bytes_per_frame));
+
     this->audio_source_ = audio::RingBufferAudioSource::create(
-        temp_ring_buffer, stream_info.ms_to_bytes(MAX_FILL_DURATION_MS),
-        static_cast<uint8_t>(bytes_per_frame));
+        temp_ring_buffer, 3072, static_cast<uint8_t>(bytes_per_frame));
+
     if (this->audio_source_ == nullptr) {
         this->status_momentary_error("audio_source", 15000);
         return false;
