@@ -118,7 +118,7 @@ class VBANPublisherComponent final : public Component {
     float gain_{1.0f}; // digital mic gain
 
     AudioPacket pkt_;
-    uint8_t packet_[sizeof(VBANHeader) + sizeof(pkt.samples)];
+    uint8_t packet_[sizeof(VBANHeader) + sizeof(AudioPacket)];
     uint32_t frame_counter_ = 0;
 };
 
