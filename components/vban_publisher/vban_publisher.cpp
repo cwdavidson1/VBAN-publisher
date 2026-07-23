@@ -81,6 +81,8 @@ void VBANPublisherComponent::loop() {
 
   ESP_LOGD(TAG,
                 "VBAN Publisher available: %d ",this->audio_source_->available());
+  ESP_LOGD(TAG,
+                "VBAN Publisher bits per sample: %d ", this->microphone_source_->get_audio_stream_info().get_bits_per_sample());
 
   // const uint32_t samples_in_window =
   //     this->microphone_source_->get_audio_stream_info().ms_to_samples(this->measurement_duration_ms_);
