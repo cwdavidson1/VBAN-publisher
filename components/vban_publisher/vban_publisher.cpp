@@ -83,7 +83,9 @@ void VBANPublisherComponent::loop() {
   // Expose a chunk of the ring buffer's internal storage - don't block to avoid slowing the main loop.
   // pre_shift is ignored by RingBufferAudioSource (no intermediate transfer buffer to compact).
   this->audio_source_->fill(0, false);
-
+  ESP_LOGCONFIG(TAG,
+                "VBAN Publisher available: % ",this->audio_source_->available());
+  
   if (this->audio_source_->available() == 0) {
     // No new audio available for processing
     return;
