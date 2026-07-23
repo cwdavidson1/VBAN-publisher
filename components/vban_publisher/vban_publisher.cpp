@@ -110,15 +110,14 @@ void VBANPublisherComponent::loop() {
         return;
     }
 
-    ESP_LOGD(TAG, "VBAN Publisher available: %d ",
-             this->audio_source_->available());
-
     const int32_t *raw_samples =
         reinterpret_cast<const int32_t *>(this->audio_source_->data());
 
     size_t count = samples_available_to_process;
 
     while (count >= VBAN_16BIT_SAMPLES_PER_PACKET) {
+
+        // change 32 bit left justified input samples to 16 bit right justified
         for (size_t i = 0; i < VBAN_16BIT_SAMPLES_PER_PACKET; i++) {
             int32_t s = static_cast<int32_t>(raw_samples[i]);
             s >>= 16;
@@ -141,6 +140,7 @@ void VBANPublisherComponent::loop() {
         memset(hdr->streamname, 0, sizeof(hdr->streamname));
         memcpy(hdr->streamname, stream_name_.c_str(), stream_name_.size());
         // update frame counter for next packet after setting in this header
+        ESP_LOGD(TAG, "VBAN Publisher available: %d ", frame_counter_);
         hdr->frame_counter = frame_counter_++;
 
         // copy in the audio samples after the header
@@ -156,6 +156,7 @@ void VBANPublisherComponent::loop() {
         }
         raw_samples += VBAN_16BIT_SAMPLES_PER_PACKET * 4;
         count -= VBAN_16BIT_SAMPLES_PER_PACKET;
+        ESP_LOGD(TAG, "count at end of loop: %d ", count);
     }
 
     this->audio_source_->consume(VBAN_16BIT_SAMPLES_PER_PACKET * 2);
