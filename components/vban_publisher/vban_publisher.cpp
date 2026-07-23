@@ -116,6 +116,7 @@ void VBANPublisherComponent::loop() {
         reinterpret_cast<const int32_t *>(this->audio_source_->data());
 
     size_t count = samples_available_to_process;
+    size_t bytes_consumed = 0;
 
     while (count >= VBAN_16BIT_SAMPLES_PER_PACKET) {
 
@@ -129,6 +130,8 @@ void VBANPublisherComponent::loop() {
                 s = -32768;
             pkt_.samples[i] = static_cast<int16_t>(s);
         }
+
+        bytes_consumed += VBAN_16BIT_SAMPLES_PER_PACKET * 2;
 
         uint8_t datagram_payload[sizeof(VBANHeader) + sizeof(pkt_.samples)];
 
@@ -160,7 +163,8 @@ void VBANPublisherComponent::loop() {
         count -= VBAN_16BIT_SAMPLES_PER_PACKET;
     }
 
-    this->audio_source_->consume(VBAN_16BIT_SAMPLES_PER_PACKET * 2);
+    this->audio_source_->consume(bytes_consumed);
+    bytes_consumed = 0;
 
     // const uint32_t samples_in_window =
     //     this->microphone_source_->get_audio_stream_info().ms_to_samples(this->measurement_duration_ms_);
