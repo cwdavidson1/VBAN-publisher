@@ -232,9 +232,13 @@ bool VBANPublisherComponent::start_() {
     // splices.
     this->ring_buffer_
         .reset(); // Reset pointer to any previous ring buffer allocation
-    const size_t ring_buffer_size =
+
+    /* const size_t ring_buffer_size =
         (stream_info.ms_to_bytes(RING_BUFFER_DURATION_MS) / bytes_per_frame) *
-        bytes_per_frame;
+        bytes_per_frame; */
+
+    const size_t ring_buffer_size = 3072;
+
     std::shared_ptr<ring_buffer::RingBuffer> temp_ring_buffer =
         ring_buffer::RingBuffer::create(ring_buffer_size);
     if (temp_ring_buffer == nullptr) {
