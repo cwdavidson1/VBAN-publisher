@@ -13,8 +13,9 @@
 #include <lwip/sockets.h>
 
 /* Tunables */
-// #define VBAN_SAMPLES_PER_PACKET 128
-#define VBAN_SAMPLES_PER_PACKET 256
+// #define VBAN_16BIT_SAMPLES_PER_PACKET 128
+#define VBAN_16BIT_SAMPLES_PER_PACKET 256
+#define VBAN_BYTES_PER_INPUT_SAMPLE 4
 #define VBAN_RING_PACKETS 32
 #define VBAN_TASK_STACK 4096
 #define VBAN_TASK_PRIORITY 4
@@ -31,7 +32,7 @@ struct __attribute__((packed)) VBANHeader {
 };
 
 struct AudioPacket {
-    int16_t samples[VBAN_SAMPLES_PER_PACKET];
+    int16_t samples[VBAN_16BIT_SAMPLES_PER_PACKET];
 };
 
 namespace esphome::vban_publisher {

@@ -101,7 +101,11 @@ void VBANPublisherComponent::loop() {
     // RingBufferAudioSource (no intermediate transfer buffer to compact).
     this->audio_source_->fill(0, false);
 
-    if (this->audio_source_->available() < sizeof(pkt_.samples)) {
+    uint32_t samples_available_to_process =
+        this->microphone_source_->get_audio_stream_info().bytes_to_samples(
+            this->audio_source_->available());
+
+    if (samples_available_to_process < VBAN_16BIT_SAMPLES_PER_PACKET) {
         // Not enough new audio available for processing
         return;
     }
@@ -109,15 +113,14 @@ void VBANPublisherComponent::loop() {
     ESP_LOGD(TAG, "VBAN Publisher available: %d ",
              this->audio_source_->available());
 
-    const size_t sample_count = this->audio_source_->available() / 4;
-    const int32_t *samples =
+    const int32_t *raw_samples =
         reinterpret_cast<const int32_t *>(this->audio_source_->data());
 
-    size_t count = sample_count;
+    size_t count = samples_available_to_process;
 
-    while (count >= VBAN_SAMPLES_PER_PACKET) {
-        for (size_t i = 0; i < VBAN_SAMPLES_PER_PACKET; i++) {
-            int32_t s = static_cast<int32_t>(samples[i]);
+    while (count >= VBAN_16BIT_SAMPLES_PER_PACKET) {
+        for (size_t i = 0; i < VBAN_16BIT_SAMPLES_PER_PACKET; i++) {
+            int32_t s = static_cast<int32_t>(raw_samples[i]);
             s >>= 16;
             if (s > 32767)
                 s = 32767;
@@ -132,7 +135,7 @@ void VBANPublisherComponent::loop() {
         VBANHeader *hdr = reinterpret_cast<VBANHeader *>(datagram_payload);
         memcpy(hdr->vban, "VBAN", 4);
         hdr->format_sr = vban_sr_index_(sample_rate_);
-        hdr->format_nbs = VBAN_SAMPLES_PER_PACKET - 1;
+        hdr->format_nbs = VBAN_16BIT_SAMPLES_PER_PACKET - 1;
         hdr->format_nbc = 0;
         hdr->format_format = 0x01;
         memset(hdr->streamname, 0, sizeof(hdr->streamname));
@@ -151,11 +154,11 @@ void VBANPublisherComponent::loop() {
         if (sockerr < 0) {
             ESP_LOGE(TAG, "Socket Send error: %d", sockerr);
         }
-        samples += VBAN_SAMPLES_PER_PACKET;
+        raw_samples += VBAN_16BIT_SAMPLES_PER_PACKET * 4;
         count -= VBAN_SAMPLES_PER_PACKET;
     }
 
-    this->audio_source_->consume(sizeof(pkt_.samples));
+    this->audio_source_->consume(VBAN_16BIT_SAMPLES_PER_PACKET * 2);
 
     // const uint32_t samples_in_window =
     //     this->microphone_source_->get_audio_stream_info().ms_to_samples(this->measurement_duration_ms_);
