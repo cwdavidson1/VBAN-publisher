@@ -91,6 +91,7 @@ class VBANPublisherComponent final : public Component {
     /// @brief Internal stop command that deallocates ``audio_source_`` (which
     /// releases its ring buffer)
     void stop_();
+    uint8_t VBANPublisherComponent::vban_sr_index_(uint32_t rate);
 
     microphone::MicrophoneSource *microphone_source_{nullptr};
 
