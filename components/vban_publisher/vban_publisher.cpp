@@ -155,7 +155,7 @@ void VBANPublisherComponent::loop() {
             ESP_LOGE(TAG, "Socket Send error: %d", sockerr);
         }
         raw_samples += VBAN_16BIT_SAMPLES_PER_PACKET * 4;
-        count -= VBAN_SAMPLES_PER_PACKET;
+        count -= VBAN_16BIT_SAMPLES_PER_PACKET;
     }
 
     this->audio_source_->consume(VBAN_16BIT_SAMPLES_PER_PACKET * 2);
