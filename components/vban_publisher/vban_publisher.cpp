@@ -163,7 +163,8 @@ void VBANPublisherComponent::loop() {
         count -= VBAN_16BIT_SAMPLES_PER_PACKET;
     }
 
-    this->audio_source_->consume(bytes_consumed);
+    // this->audio_source_->consume(bytes_consumed);
+    this->audio_source_->consume(this->audio_source_->available());
     bytes_consumed = 0;
 
     // const uint32_t samples_in_window =
