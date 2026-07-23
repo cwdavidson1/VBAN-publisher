@@ -10,9 +10,9 @@
 #include "esphome/core/automation.h"
 #include "esphome/core/component.h"
 
-namespace esphome::sound_level {
+namespace esphome::vban_publisher {
 
-class VBANPublisherComponent final : public Component {
+class VBANPublisherComponentComponent final : public Component {
  public:
   void dump_config() override;
   void setup() override;
@@ -59,16 +59,16 @@ class VBANPublisherComponent final : public Component {
   uint32_t measurement_duration_ms_;
 };
 
-template<typename... Ts> class StartAction final : public Action<Ts...>, public Parented<VBANPublisher> {
+template<typename... Ts> class StartAction final : public Action<Ts...>, public Parented<VBANPublisherComponent> {
  public:
   void play(const Ts &...x) override { this->parent_->start(); }
 };
 
-template<typename... Ts> class StopAction final : public Action<Ts...>, public Parented<VBANPublisher> {
+template<typename... Ts> class StopAction final : public Action<Ts...>, public Parented<VBANPublisherComponent> {
  public:
   void play(const Ts &...x) override { this->parent_->stop(); }
 };
 
-}  // namespace esphome::sound_level
+}  // namespace esphome::vban_publisher
 
 #endif

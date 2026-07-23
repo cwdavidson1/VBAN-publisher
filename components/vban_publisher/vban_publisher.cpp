@@ -7,7 +7,7 @@
 #include <cmath>
 #include <cstdint>
 
-namespace esphome::sound_level {
+namespace esphome::vban_publisher {
 
 static const char *const TAG = "vban_publisher";
 
@@ -19,7 +19,7 @@ static const double MAX_SAMPLE_SQUARED_DENOMINATOR = INT16_MIN * INT16_MIN;
 
 void VBANPublisherComponent::dump_config() {
   ESP_LOGCONFIG(TAG,
-                "Sound Level Component:\n"
+                "VBAN Publisher Component:\n"
                 "  Measurement Duration: %" PRIu32 " ms",
                 measurement_duration_ms_);
   LOG_SENSOR("  ", "Peak:", this->peak_sensor_);
@@ -191,6 +191,6 @@ bool VBANPublisherComponent::start_() {
 
 void VBANPublisherComponent::stop_() { this->audio_source_.reset(); }
 
-}  // namespace esphome::sound_level
+}  // namespace esphome::vban_publisher
 
 #endif

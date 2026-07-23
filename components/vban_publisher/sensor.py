@@ -21,16 +21,16 @@ CONF_PASSIVE = "passive"
 CONF_PEAK = "peak"
 CONF_RMS = "rms"
 
-sound_level_ns = cg.esphome_ns.namespace("vban_publisher")
-VBANPublisher = sound_level_ns.class_("VBANPublisher", cg.Component)
+vban_publisher_ns = cg.esphome_ns.namespace("vban_publisher")
+VBANPublisherComponent = vban_publisher_ns.class_("VBANPublisherComponent", cg.Component)
 
-StartAction = sound_level_ns.class_("StartAction", automation.Action)
-StopAction = sound_level_ns.class_("StopAction", automation.Action)
+StartAction = vban_publisher_ns.class_("StartAction", automation.Action)
+StopAction = vban_publisher_ns.class_("StopAction", automation.Action)
 
 CONFIG_SCHEMA = cv.All(
     cv.Schema(
         {
-            cv.GenerateID(): cv.declare_id(VBANPublisher),
+            cv.GenerateID(): cv.declare_id(VBANPublisherComponent),
             cv.Optional(CONF_MEASUREMENT_DURATION, default="1000ms"): cv.All(
                 cv.positive_time_period_milliseconds,
                 cv.Range(
@@ -82,20 +82,20 @@ async def to_code(config):
         cg.add(var.set_rms_sensor(sens))
 
 
-SOUND_LEVEL_ACTION_SCHEMA = automation.maybe_simple_id(
+VBAN_PUBLISHER_ACTION_SCHEMA = automation.maybe_simple_id(
     {
-        cv.GenerateID(): cv.use_id(VBANPublisher),
+        cv.GenerateID(): cv.use_id(VBANPublisherComponent),
     }
 )
 
 
 @automation.register_action(
-    "sound_level.start", StartAction, SOUND_LEVEL_ACTION_SCHEMA, synchronous=True
+    "vban_publisher.start", StartAction, VBAN_PUBLISHER_ACTION_SCHEMA, synchronous=True
 )
 @automation.register_action(
-    "sound_level.stop", StopAction, SOUND_LEVEL_ACTION_SCHEMA, synchronous=True
+    "vban_publisher.stop", StopAction, VBAN_PUBLISHER_ACTION_SCHEMA, synchronous=True
 )
-async def sound_level_action_to_code(config, action_id, template_arg, args):
+async def vban_publisher_action_to_code(config, action_id, template_arg, args):
     var = cg.new_Pvariable(action_id, template_arg)
     await cg.register_parented(var, config[CONF_ID])
     return var
