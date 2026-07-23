@@ -113,7 +113,7 @@ void VBANPublisherComponent::loop() {
     const int32_t *samples =
         reinterpret_cast<const int32_t *>(this->audio_source_->data());
 
-    const size_t count = sample_count;
+    size_t count = sample_count;
 
     while (count >= VBAN_SAMPLES_PER_PACKET) {
         for (size_t i = 0; i < VBAN_SAMPLES_PER_PACKET; i++) {
