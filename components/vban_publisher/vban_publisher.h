@@ -9,6 +9,30 @@
 
 #include "esphome/core/automation.h"
 #include "esphome/core/component.h"
+#include <lwip/sockets.h>
+#include <lwip/inet.h>
+
+/* Tunables */
+//#define VBAN_SAMPLES_PER_PACKET 128
+#define VBAN_SAMPLES_PER_PACKET 256
+#define VBAN_RING_PACKETS       32
+#define VBAN_TASK_STACK         4096
+#define VBAN_TASK_PRIORITY      4
+
+/* VBAN header (packed, compliant, with frame counter) */
+struct __attribute__((packed)) VBANHeader {
+  char     vban[4];          // "VBAN"
+  uint8_t  format_sr;        // sample-rate index
+  uint8_t  format_nbs;       // samples per frame - 1
+  uint8_t  format_nbc;       // channels - 1
+  uint8_t  format_format;    // format / codec
+  char     streamname[16];   // null padded
+  uint32_t frame_counter;    // REQUIRED
+};
+
+struct AudioPacket {
+  int16_t samples[VBAN_SAMPLES_PER_PACKET];
+};
 
 namespace esphome::vban_publisher {
 
@@ -28,6 +52,12 @@ class VBANPublisherComponent final : public Component {
   }
   void set_peak_sensor(sensor::Sensor *peak_sensor) { this->peak_sensor_ = peak_sensor; }
   void set_rms_sensor(sensor::Sensor *rms_sensor) { this->rms_sensor_ = rms_sensor; }
+
+  void set_target_ip(const std::string &ip);
+  void set_target_port(uint16_t port);
+  void set_sample_rate(uint32_t rate);
+  void set_stream_name(const std::string &name);
+  void set_gain(float gain);
 
   /// @brief Starts the MicrophoneSource to start measuring sound levels
   void start();

@@ -20,6 +20,11 @@ DEPENDENCIES = ["microphone"]
 CONF_PASSIVE = "passive"
 CONF_PEAK = "peak"
 CONF_RMS = "rms"
+CONF_IP_ADDRESS = "ip_address"
+CONF_PORT = "port"
+CONF_STREAM_NAME = "stream_name"
+CONF_SAMPLE_RATE = "sample_rate"
+CONF_GAIN = "gain"
 
 vban_publisher_ns = cg.esphome_ns.namespace("vban_publisher")
 VBANPublisherComponent = vban_publisher_ns.class_("VBANPublisherComponent", cg.Component)
@@ -57,6 +62,15 @@ CONFIG_SCHEMA = cv.All(
                 device_class=DEVICE_CLASS_SOUND_PRESSURE,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
+            cv.Required(CONF_IP_ADDRESS): cv.ipv4address,
+            
+            cv.Optional(CONF_PORT, default=6980): cv.port,
+            
+            cv.Optional(CONF_STREAM_NAME, default="ESP32"): cv.string,
+            
+            cv.Optional(CONF_SAMPLE_RATE, default=48000): cv.int_range(min=6000, max=192000),
+            
+            cv.Optional(CONF_GAIN, default=1.0): cv.float_range(min=0.0, max=10.0),
         }
     ).extend(cv.COMPONENT_SCHEMA),
     cv.only_on([PLATFORM_ESP32]),
@@ -73,6 +87,11 @@ async def to_code(config):
     cg.add(var.set_microphone_source(mic_source))
 
     cg.add(var.set_measurement_duration(config[CONF_MEASUREMENT_DURATION]))
+    cg.add(var.set_target_ip(str(config[CONF_IP_ADDRESS])))
+    cg.add(var.set_target_port(config[CONF_PORT]))
+    cg.add(var.set_sample_rate(config[CONF_SAMPLE_RATE]))
+    cg.add(var.set_stream_name(config[CONF_STREAM_NAME]))
+    cg.add(var.set_gain(config[CONF_GAIN]))
 
     if peak_config := config.get(CONF_PEAK):
         sens = await sensor.new_sensor(peak_config)
